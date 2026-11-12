@@ -1,31 +1,29 @@
 # Complete lab build & MAC Spoofing attack walkthrough
 
-A bilingual (Tiếng Việt / English), hands-on lab for building an **isolated virtual network**
-and reproducing classic Layer-2 attacks against it — with matching defenses and a
-measurement worksheet. Built on **GNS3 + Kali Linux + Open vSwitch**, with a Cisco
-**Packet Tracer** supplement for enterprise-standard comparison.
+**English** · [Tiếng Việt](README.vi.md)
 
-> **Lab thực hành tấn công giả mạo MAC** — mọi bước dựng máy ảo, từng câu lệnh tấn công và
-> phòng thủ, kèm địa chỉ IP sẵn dùng. Làm theo đúng thứ tự là chạy được.
+A hands-on lab for building an **isolated virtual network** and reproducing classic Layer-2
+attacks against it — with matching defenses and a measurement worksheet. Built on
+**GNS3 + Kali Linux + Open vSwitch**, with a Cisco **Packet Tracer** supplement for
+enterprise-standard comparison.
 
 The full interactive guide is in [`index.html`](index.html) — open it in a browser for the
 step-by-step walkthrough with copyable commands, a topology diagram, and a fillable results
 worksheet (VI/EN toggle in the top-right).
 
+Writing a report? See the companion guide in [`docs/report-writing-guide.md`](docs/report-writing-guide.md).
+
 ---
 
-## ⚠️ Scope & ethics / Phạm vi & đạo đức
+## ⚠️ Scope & ethics
 
 **For educational use inside your own isolated virtual lab only.** Run every attack solely on
 the isolated virtual network (GNS3, **no connection to the Internet or a production/school
 network**). Attacking any network or device without authorization is illegal.
 
-> Chỉ dùng cho mục đích học tập trong môi trường lab ảo của bạn. Toàn bộ tấn công chỉ được
-> thực hiện trên mạng ảo cô lập. Tấn công vào mạng/thiết bị không được phép là vi phạm pháp luật.
-
 ---
 
-## Topology & addressing / Sơ đồ & địa chỉ
+## Topology & addressing
 
 A flat `192.168.10.0/24` network. Three hosts plug into one Open vSwitch bridge (`br0`).
 
@@ -41,7 +39,7 @@ A flat `192.168.10.0/24` network. Three hosts plug into one Open vSwitch bridge 
 
 ---
 
-## Software you need / Phần mềm cần có
+## Software you need
 
 | Software | Used for |
 |---|---|
@@ -57,7 +55,7 @@ load (swap the Ubuntu VMs for GNS3 Docker appliances or VPCS nodes). Enable VT-x
 
 ---
 
-## Quick start / Bắt đầu nhanh
+## Quick start
 
 1. Build the GNS3 topology and install the **Open vSwitch** appliance (see `index.html` → *VM setup*).
 2. Configure each host. The commands are packaged as scripts in [`scripts/`](scripts/):
@@ -86,7 +84,7 @@ load (swap the Ubuntu VMs for GNS3 Docker appliances or VPCS nodes). Enable VT-x
 
 ---
 
-## Three attack scenarios / Ba kịch bản tấn công
+## Three attack scenarios
 
 | # | Attack | Idea | Tool |
 |---|--------|------|------|
@@ -101,7 +99,7 @@ load (swap the Ubuntu VMs for GNS3 Docker appliances or VPCS nodes). Enable VT-x
 
 ---
 
-## Defenses / Phòng thủ
+## Defenses
 
 - **Open vSwitch (OpenFlow)** — bind MAC↔port (stops Case 1 & 2) and IP↔MAC for ARP (stops
   Case 3). See [`scripts/ovs-defense.sh`](scripts/ovs-defense.sh).
@@ -110,7 +108,7 @@ load (swap the Ubuntu VMs for GNS3 Docker appliances or VPCS nodes). Enable VT-x
 
 ---
 
-## Measurement criteria / Tiêu chí đo lường
+## Measurement criteria
 
 - Attack succeeded? (does Wireshark capture the victim's traffic)
 - Malicious frames blocked (`ovs-ofctl dump-flows br0` drop counters)
@@ -124,13 +122,16 @@ load (swap the Ubuntu VMs for GNS3 Docker appliances or VPCS nodes). Enable VT-x
 
 ```
 .
-├── index.html              # Full interactive bilingual lab guide
+├── index.html                      # Full interactive bilingual lab guide
 ├── scripts/
-│   ├── setup-kali.sh       # Attacker: pin MAC + static IP, install tools
-│   ├── setup-victim.sh     # Victim: MAC + IP + default route
-│   ├── setup-gateway.sh    # Gateway: MAC + IP + ip_forward
-│   ├── ovs-defense.sh      # OpenFlow MAC↔port & ARP IP↔MAC binding rules
-│   └── ovs-reset.sh        # Remove all flows + helpful inspection commands
+│   ├── setup-kali.sh               # Attacker: pin MAC + static IP, install tools
+│   ├── setup-victim.sh             # Victim: MAC + IP + default route
+│   ├── setup-gateway.sh            # Gateway: MAC + IP + ip_forward
+│   ├── ovs-defense.sh              # OpenFlow MAC↔port & ARP IP↔MAC binding rules
+│   └── ovs-reset.sh                # Remove all flows + helpful inspection commands
+├── docs/
+│   ├── report-writing-guide.md     # Report-writing companion (English)
+│   └── huong-dan-viet-bao-cao.md   # Report-writing companion (Vietnamese)
 ├── LICENSE
 └── README.md
 ```
