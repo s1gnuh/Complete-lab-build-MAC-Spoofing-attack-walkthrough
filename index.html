@@ -1,0 +1,703 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>MAC Spoofing Lab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: single-column lab worksheet, sticky bilingual header, color-coded phase cards (setup/attack/defense/results), fixed dark terminal code blocks */
+:root{
+  --bg:#eef2f8; --surface:#ffffff; --surface-2:#e7edf6; --fg:#15202e; --muted:#54657e;
+  --border:#d4deea; --border-strong:#bccadc;
+  --accent:#0d9488; --accent-fg:#ffffff;
+  --setup:#2563eb; --attack:#dc2626; --defense:#16a34a; --results:#7c3aed; --warn:#b45309;
+  --setup-bg:#eaf1ff; --attack-bg:#fdeceb; --defense-bg:#e9f7ee; --results-bg:#f2ecfe; --warn-bg:#fdf2e3;
+  --term-bg:#0d1526; --term-fg:#dbe6f5; --term-border:#1e2b45; --term-prompt:#4fd1c5; --term-comment:#6b7f9e;
+  --shadow:0 1px 2px rgba(20,40,70,.06),0 6px 20px rgba(20,40,70,.06);
+  --radius:14px;
+  --f-head:"Space Grotesk",system-ui,sans-serif;
+  --f-body:"Inter",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"Cascadia Code",monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a1120; --surface:#111c30; --surface-2:#172339; --fg:#e7eef8; --muted:#9aacc6;
+  --border:#263349; --border-strong:#33455f;
+  --accent:#2dd4bf; --accent-fg:#06211e;
+  --setup:#60a5fa; --attack:#f87171; --defense:#4ade80; --results:#c4b5fd; --warn:#fbbf24;
+  --setup-bg:#13203a; --attack-bg:#2a1719; --defense-bg:#122a1d; --results-bg:#211a39; --warn-bg:#2a2112;
+  --term-bg:#060c18; --term-fg:#d6e3f4; --term-border:#1a2740; --term-prompt:#5eead4; --term-comment:#5f769a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0a1120; --surface:#111c30; --surface-2:#172339; --fg:#e7eef8; --muted:#9aacc6;
+  --border:#263349; --border-strong:#33455f;
+  --accent:#2dd4bf; --accent-fg:#06211e;
+  --setup:#60a5fa; --attack:#f87171; --defense:#4ade80; --results:#c4b5fd; --warn:#fbbf24;
+  --setup-bg:#13203a; --attack-bg:#2a1719; --defense-bg:#122a1d; --results-bg:#211a39; --warn-bg:#2a2112;
+  --term-bg:#060c18; --term-fg:#d6e3f4; --term-border:#1a2740; --term-prompt:#5eead4; --term-comment:#5f769a;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:1.6;margin:0;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));}
+.wrap{max-width:860px;margin:0 auto;padding-block:0 64px}
+
+/* language toggle */
+body[data-ui-lang="vi"] [data-lang="en"]{display:none}
+body[data-ui-lang="en"] [data-lang="vi"]{display:none}
+
+/* header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);
+  border-bottom:1px solid var(--border);margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));
+  padding:14px max(16px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:space-between}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--surface)}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.logo{width:34px;height:34px;flex:none;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--setup));
+  display:grid;place-items:center;color:#fff;font-family:var(--f-mono);font-weight:600;font-size:15px}
+.brand h1{font-family:var(--f-head);font-size:1.02rem;margin:0;line-height:1.15;letter-spacing:-.01em}
+.brand .sub{font-size:.72rem;color:var(--muted);font-weight:500}
+.langtog{display:flex;border:1px solid var(--border-strong);border-radius:999px;overflow:hidden;flex:none}
+.langtog button{font-family:var(--f-mono);font-size:.76rem;font-weight:600;border:0;background:transparent;color:var(--muted);
+  padding:7px 14px;cursor:pointer;transition:.15s}
+.langtog button.on{background:var(--accent);color:var(--accent-fg)}
+
+/* hero */
+.hero{padding:30px 0 8px}
+.hero h2{font-family:var(--f-head);font-size:1.9rem;line-height:1.1;margin:.2em 0 .25em;letter-spacing:-.02em;text-wrap:balance}
+.hero p{color:var(--muted);font-size:1.02rem;margin:.4em 0;max-width:62ch}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+
+/* ethics banner */
+.ethic{display:flex;gap:12px;align-items:flex-start;background:var(--warn-bg);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);
+  border-radius:12px;padding:13px 15px;margin:18px 0;font-size:.9rem}
+.ethic .ic{color:var(--warn);font-size:1.1rem;flex:none;line-height:1.4}
+.ethic b{color:var(--warn)}
+
+/* section */
+section.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:22px;margin:16px 0;--sec:var(--accent);--sec-bg:var(--surface-2)}
+section.s-setup{--sec:var(--setup);--sec-bg:var(--setup-bg)}
+section.s-attack{--sec:var(--attack);--sec-bg:var(--attack-bg)}
+section.s-defense{--sec:var(--defense);--sec-bg:var(--defense-bg)}
+section.s-results{--sec:var(--results);--sec-bg:var(--results-bg)}
+.sec-head{display:flex;align-items:center;gap:13px;margin:0 0 6px}
+.sec-tag{font-family:var(--f-mono);font-size:.72rem;font-weight:600;color:var(--sec);background:var(--sec-bg);
+  border:1px solid color-mix(in srgb,var(--sec) 35%,transparent);padding:4px 10px;border-radius:999px;white-space:nowrap}
+.sec-head h3{font-family:var(--f-head);font-size:1.3rem;margin:0;letter-spacing:-.01em;line-height:1.2;min-width:0}
+.card h4{font-family:var(--f-head);font-size:1.02rem;margin:20px 0 8px;display:flex;align-items:center;gap:9px}
+.card h4:first-of-type{margin-top:12px}
+.lead{color:var(--muted);margin:.2em 0 .6em}
+
+/* steps */
+ol.steps{list-style:none;counter-reset:st;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:12px}
+ol.steps>li{counter-increment:st;position:relative;padding-left:40px;min-width:0}
+ol.steps>li::before{content:counter(st);position:absolute;left:0;top:-1px;width:27px;height:27px;border-radius:50%;
+  background:var(--sec-bg);color:var(--sec);border:1.5px solid color-mix(in srgb,var(--sec) 45%,transparent);
+  font-family:var(--f-mono);font-weight:600;font-size:.82rem;display:grid;place-items:center}
+ol.steps>li b{font-weight:600}
+
+/* code */
+.code{position:relative;margin:10px 0;border-radius:11px;overflow:hidden;border:1px solid var(--term-border);background:var(--term-bg)}
+.code .bar{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;border-bottom:1px solid var(--term-border);
+  background:color-mix(in srgb,var(--term-bg) 80%,#1b2b47)}
+.code .bar .ttl{font-family:var(--f-mono);font-size:.7rem;color:var(--term-comment);letter-spacing:.03em}
+.code .bar button{font-family:var(--f-mono);font-size:.68rem;color:var(--term-prompt);background:transparent;
+  border:1px solid var(--term-border);border-radius:6px;padding:3px 9px;cursor:pointer}
+.code .bar button:active{transform:scale(.96)}
+.code pre{margin:0;padding:13px 14px;overflow-x:auto;font-family:var(--f-mono);font-size:.82rem;line-height:1.65;color:var(--term-fg)}
+.code pre .c{color:var(--term-comment)}
+.code pre .p{color:var(--term-prompt)}
+
+/* inline code */
+code.inl{font-family:var(--f-mono);font-size:.86em;background:var(--surface-2);border:1px solid var(--border);
+  padding:1px 6px;border-radius:5px;color:var(--fg);word-break:break-word}
+
+/* tables */
+.tblwrap{overflow-x:auto;margin:12px 0;border:1px solid var(--border);border-radius:11px}
+table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:420px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+th{background:var(--surface-2);font-family:var(--f-head);font-weight:600;font-size:.82rem;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.mono,th.mono{font-family:var(--f-mono);font-size:.82rem}
+.chip{display:inline-block;font-family:var(--f-mono);font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px}
+.chip.atk{color:var(--attack);background:var(--attack-bg)}
+.chip.def{color:var(--defense);background:var(--defense-bg)}
+.chip.set{color:var(--setup);background:var(--setup-bg)}
+
+/* callout */
+.note{border-left:3px solid var(--sec);background:var(--sec-bg);padding:10px 14px;border-radius:0 9px 9px 0;margin:12px 0;font-size:.9rem}
+.note b{color:var(--sec)}
+
+/* topology svg */
+.topo{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:14px;margin:14px 0}
+.topo svg{width:100%;height:auto;display:block}
+.t-node{fill:var(--surface)}
+.t-stroke-atk{stroke:var(--attack)} .t-fill-atk{fill:var(--attack)}
+.t-stroke-vic{stroke:var(--setup)} .t-fill-vic{fill:var(--setup)}
+.t-stroke-gw{stroke:var(--defense)} .t-fill-gw{fill:var(--defense)}
+.t-stroke-sw{stroke:var(--accent)} .t-fill-sw{fill:var(--accent)}
+.t-line{stroke:var(--border-strong);stroke-width:2}
+.t-label{fill:var(--fg);font-family:var(--f-head);font-weight:600;font-size:13px}
+.t-ip{fill:var(--muted);font-family:var(--f-mono);font-size:11px}
+.t-port{fill:var(--muted);font-family:var(--f-mono);font-size:10px}
+
+/* worksheet form */
+.field{display:flex;flex-direction:column;gap:5px;margin:12px 0}
+.field label{font-size:.82rem;font-weight:600;color:var(--muted)}
+.field input[type=text],.field textarea,td input[type=text],td textarea{width:100%;font-family:var(--f-body);font-size:.9rem;
+  background:var(--bg);color:var(--fg);border:1px solid var(--border-strong);border-radius:8px;padding:8px 10px}
+.field textarea,td textarea{resize:vertical;min-height:52px;line-height:1.5}
+td input[type=text]{min-width:110px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.grid2{grid-template-columns:1fr}}
+.casebox{border:1px solid var(--border);border-radius:11px;padding:14px;margin:12px 0;background:var(--bg)}
+.casebox .ch{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.casebox .ch input{width:20px;height:20px;flex:none;accent-color:var(--results)}
+.casebox .ch .nm{font-family:var(--f-head);font-weight:600;font-size:1rem}
+.statusrow{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.seg{display:flex;flex-direction:column;gap:5px;flex:1;min-width:150px}
+.seg span{font-size:.78rem;color:var(--muted);font-weight:600}
+.seg select{font-family:var(--f-body);font-size:.88rem;background:var(--bg);color:var(--fg);border:1px solid var(--border-strong);border-radius:8px;padding:7px 9px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{font-family:var(--f-head);font-weight:600;font-size:.88rem;border-radius:9px;padding:9px 16px;cursor:pointer;border:1px solid var(--border-strong);background:var(--surface);color:var(--fg)}
+.btn.primary{background:var(--results);color:#fff;border-color:transparent}
+.saved{font-size:.8rem;color:var(--defense);font-weight:600;align-self:center;opacity:0;transition:.3s}
+.saved.show{opacity:1}
+
+/* progress */
+.prog{display:flex;align-items:center;gap:12px;margin:8px 0 2px}
+.prog .track{flex:1;height:9px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+.prog .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--results));width:0;transition:.4s}
+.prog .pct{font-family:var(--f-mono);font-size:.82rem;font-weight:600;color:var(--results)}
+
+footer{text-align:center;color:var(--muted);font-size:.8rem;margin-top:30px;padding-top:18px;border-top:1px solid var(--border)}
+a{color:var(--accent)}
+.tocwrap{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 4px}
+.tocwrap a{font-family:var(--f-mono);font-size:.76rem;text-decoration:none;color:var(--muted);border:1px solid var(--border);
+  padding:5px 11px;border-radius:999px;background:var(--surface)}
+.tocwrap a:hover{border-color:var(--accent);color:var(--accent)}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <div class="logo">M</div>
+    <div>
+      <h1><span data-lang="vi">Lab: Tấn công giả mạo MAC</span><span data-lang="en">Lab: MAC Spoofing Attacks</span></h1>
+      <div class="sub" data-lang="vi">Hướng dẫn thực hành · GNS3 + Kali + Open vSwitch</div>
+      <div class="sub" data-lang="en">Hands-on guide · GNS3 + Kali + Open vSwitch</div>
+    </div>
+  </div>
+  <div class="langtog" role="group" aria-label="Language">
+    <button id="btn-vi" onclick="setLang('vi')">VI</button>
+    <button id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="eyebrow">Chapter 3 · Implementation &amp; Experiments</div>
+  <h2 data-lang="vi">Siêu hướng dẫn dựng lab &amp; thực hiện tấn công MAC Spoofing</h2>
+  <h2 data-lang="en">Complete lab build &amp; MAC Spoofing attack walkthrough</h2>
+  <p data-lang="vi">Mọi bước cài đặt từng máy ảo, từng câu lệnh tấn công và phòng thủ, kèm địa chỉ IP sẵn dùng. Làm theo đúng thứ tự là chạy được. Cuối trang có mục điền kết quả lab.</p>
+  <p data-lang="en">Every VM setup step, every attack and defense command, with ready-to-use IP addresses. Follow the order and it just works. A fillable results worksheet is at the end.</p>
+</div>
+
+<div class="ethic">
+  <div class="ic">!</div>
+  <div>
+    <span data-lang="vi"><b>Chỉ dùng cho mục đích học tập trong môi trường lab ảo của bạn.</b> Toàn bộ tấn công chỉ được thực hiện trên mạng ảo cô lập (GNS3, không nối Internet/mạng trường). Tấn công vào mạng/thiết bị không được phép là vi phạm pháp luật.</span>
+    <span data-lang="en"><b>For educational use inside your own isolated virtual lab only.</b> Run every attack solely on the isolated virtual network (GNS3, no connection to the Internet or your school network). Attacking any network or device without authorization is illegal.</span>
+  </div>
+</div>
+
+<div class="tocwrap">
+  <a href="#addr"><span data-lang="vi">Địa chỉ</span><span data-lang="en">Addressing</span></a>
+  <a href="#setup"><span data-lang="vi">Cài đặt VM</span><span data-lang="en">VM setup</span></a>
+  <a href="#attack"><span data-lang="vi">Tấn công</span><span data-lang="en">Attacks</span></a>
+  <a href="#defense"><span data-lang="vi">Phòng thủ</span><span data-lang="en">Defense</span></a>
+  <a href="#ptracer"><span data-lang="vi">Packet Tracer</span><span data-lang="en">Packet Tracer</span></a>
+  <a href="#measure"><span data-lang="vi">Đo lường</span><span data-lang="en">Measurement</span></a>
+  <a href="#results"><span data-lang="vi">Điền kết quả</span><span data-lang="en">Results</span></a>
+</div>
+
+<!-- ADDRESSING -->
+<section class="card" id="addr">
+  <div class="sec-head"><span class="sec-tag">PLAN</span>
+    <h3><span data-lang="vi">Sơ đồ mạng &amp; bảng địa chỉ</span><span data-lang="en">Topology &amp; addressing table</span></h3>
+  </div>
+  <p class="lead" data-lang="vi">Một mạng phẳng <code class="inl">192.168.10.0/24</code>. Ba máy ảo cắm vào cùng một switch ảo Open vSwitch (br0). Dùng y nguyên các địa chỉ dưới đây để khỏi phải nghĩ.</p>
+  <p class="lead" data-lang="en">A flat <code class="inl">192.168.10.0/24</code> network. Three VMs plug into one Open vSwitch (br0). Use the addresses below exactly so you don't have to invent any.</p>
+
+  <div class="topo">
+    <svg viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lab topology">
+      <!-- lines -->
+      <line class="t-line" x1="120" y1="118" x2="320" y2="200"/>
+      <line class="t-line" x1="320" y1="118" x2="320" y2="178"/>
+      <line class="t-line" x1="520" y1="118" x2="320" y2="200"/>
+      <!-- switch -->
+      <rect class="t-node t-stroke-sw" x="230" y="200" width="180" height="56" rx="10" stroke-width="2"/>
+      <text class="t-label" x="320" y="224" text-anchor="middle">Open vSwitch · br0</text>
+      <text class="t-ip" x="320" y="242" text-anchor="middle">L2 switch</text>
+      <!-- attacker -->
+      <rect class="t-node t-stroke-atk" x="40" y="40" width="160" height="78" rx="10" stroke-width="2"/>
+      <circle class="t-fill-atk" cx="62" cy="62" r="6"/>
+      <text class="t-label" x="78" y="66">Kali</text>
+      <text class="t-ip" x="56" y="88">192.168.10.50</text>
+      <text class="t-ip" x="56" y="104">aa:bb:cc:00:00:50</text>
+      <text class="t-port" x="150" y="138" text-anchor="middle">port1</text>
+      <!-- victim -->
+      <rect class="t-node t-stroke-vic" x="240" y="40" width="160" height="78" rx="10" stroke-width="2"/>
+      <circle class="t-fill-vic" cx="262" cy="62" r="6"/>
+      <text class="t-label" x="278" y="66">Victim</text>
+      <text class="t-ip" x="256" y="88">192.168.10.10</text>
+      <text class="t-ip" x="256" y="104">aa:bb:cc:00:00:10</text>
+      <text class="t-port" x="320" y="150" text-anchor="middle">port2</text>
+      <!-- gateway -->
+      <rect class="t-node t-stroke-gw" x="440" y="40" width="160" height="78" rx="10" stroke-width="2"/>
+      <circle class="t-fill-gw" cx="462" cy="62" r="6"/>
+      <text class="t-label" x="478" y="66">Gateway</text>
+      <text class="t-ip" x="456" y="88">192.168.10.1</text>
+      <text class="t-ip" x="456" y="104">aa:bb:cc:00:00:01</text>
+      <text class="t-port" x="490" y="138" text-anchor="middle">port3</text>
+    </svg>
+  </div>
+
+  <div class="tblwrap">
+    <table>
+      <thead><tr>
+        <th data-lang="vi">Máy</th><th data-lang="en">Host</th>
+        <th data-lang="vi">Vai trò</th><th data-lang="en">Role</th>
+        <th class="mono">IP</th>
+        <th class="mono"><span data-lang="vi">MAC (ví dụ)</span><span data-lang="en">MAC (example)</span></th>
+        <th class="mono">Port</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Kali Linux</td><td><span class="chip atk">attacker</span></td><td class="mono">192.168.10.50</td><td class="mono">aa:bb:cc:00:00:50</td><td class="mono">port1</td></tr>
+        <tr><td>Ubuntu/Lubuntu</td><td><span class="chip set">victim</span></td><td class="mono">192.168.10.10</td><td class="mono">aa:bb:cc:00:00:10</td><td class="mono">port2</td></tr>
+        <tr><td>Ubuntu/Lubuntu</td><td><span class="chip def">gateway/server</span></td><td class="mono">192.168.10.1</td><td class="mono">aa:bb:cc:00:00:01</td><td class="mono">port3</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="note">
+    <span data-lang="vi"><b>Lưu ý:</b> Cột MAC ở trên là MAC bạn <b>đặt cố định</b> cho từng máy (xem bước cài VM) để dễ viết rule phòng thủ. Ghi lại MAC thật bằng <code class="inl">ip link show</code> — bạn sẽ dùng chúng ở phần Phòng thủ.</span>
+    <span data-lang="en"><b>Note:</b> The MAC column is the MAC you <b>pin</b> on each VM (see VM setup) so defense rules are easy to write. Record the real MACs with <code class="inl">ip link show</code> — you'll need them in the Defense section.</span>
+  </div>
+</section>
+
+<!-- SETUP -->
+<section class="card s-setup" id="setup">
+  <div class="sec-head"><span class="sec-tag">SETUP</span>
+    <h3><span data-lang="vi">Cài đặt từng máy ảo</span><span data-lang="en">Set up each virtual machine</span></h3>
+  </div>
+
+  <h4><span data-lang="vi">0 · Phần mềm cần có</span><span data-lang="en">0 · Software you need</span></h4>
+  <div class="tblwrap"><table>
+    <thead><tr><th><span data-lang="vi">Phần mềm</span><span data-lang="en">Software</span></th><th><span data-lang="vi">Dùng để</span><span data-lang="en">Used for</span></th></tr></thead>
+    <tbody>
+      <tr><td class="mono">GNS3 + GNS3 VM</td><td><span data-lang="vi">Nền mô phỏng mạng</span><span data-lang="en">Network simulation platform</span></td></tr>
+      <tr><td class="mono">VMware Workstation / Player</td><td><span data-lang="vi">Chạy GNS3 VM và các máy ảo</span><span data-lang="en">Runs the GNS3 VM and guest VMs</span></td></tr>
+      <tr><td class="mono">Open vSwitch appliance</td><td><span data-lang="vi">Switch L2 "thật" (tải free trong GNS3 Marketplace)</span><span data-lang="en">The L2 switch (free from GNS3 Marketplace)</span></td></tr>
+      <tr><td class="mono">Kali Linux (VM)</td><td><span data-lang="vi">Máy tấn công</span><span data-lang="en">Attacker machine</span></td></tr>
+      <tr><td class="mono">Ubuntu / Lubuntu (VM)</td><td><span data-lang="vi">Victim + Gateway (clone 2 bản)</span><span data-lang="en">Victim + Gateway (clone twice)</span></td></tr>
+      <tr><td class="mono">Wireshark</td><td><span data-lang="vi">Bắt gói, chứng minh kết quả</span><span data-lang="en">Packet capture, proof of results</span></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><span data-lang="vi"><b>RAM:</b> lab chạy <b>4 VM</b> cùng lúc (GNS3 VM + Kali + 2 Ubuntu), nên thực tế cần <b>16GB</b>. 8GB vẫn mở được nhưng rất giật và dễ treo — nếu chỉ có 8GB, hãy giảm tải (xem mẹo bên dưới). Bật ảo hóa (VT-x/AMD-V) trong BIOS.</span><span data-lang="en"><b>RAM:</b> the lab runs <b>4 VMs</b> at once (GNS3 VM + Kali + 2 Ubuntu), so you realistically need <b>16GB</b>. 8GB will open but stutter and may freeze — on 8GB, lighten the load (tip below). Enable virtualization (VT-x/AMD-V) in BIOS.</span></div>
+  <div class="note"><span data-lang="vi"><b>Mẹo máy yếu:</b> thay 2 VM Ubuntu bằng <b>Docker appliance</b> trong GNS3 (nhẹ hơn nhiều), hoặc dùng node <b>VPCS</b> cho victim/gateway nếu chỉ cần sinh traffic ping.</span><span data-lang="en"><b>Low-RAM tip:</b> replace the two Ubuntu VMs with GNS3 <b>Docker appliances</b> (far lighter), or use <b>VPCS</b> nodes for victim/gateway if you only need to generate ping traffic.</span></div>
+  <div class="note"><span data-lang="vi"><b>Dùng VMware:</b> hướng dẫn này dùng <b>VMware Workstation/Player</b> vì ổn định và nhanh hơn cho ảo hóa lồng. Khi cài GNS3 VM, chọn gói <b>VMware</b>. Đừng cài song song VirtualBox và chạy cùng lúc — hai bên tranh quyền ảo hóa gây crash.</span><span data-lang="en"><b>Using VMware:</b> this guide uses <b>VMware Workstation/Player</b> for its stability and faster nested virtualization. When installing the GNS3 VM, pick the <b>VMware</b> package. Don't also install VirtualBox and run both — they fight over virtualization and crash.</span></div>
+  <div class="note" style="--sec:var(--warn);--sec-bg:var(--warn-bg)"><span data-lang="vi"><b>Quan trọng — tên card mạng:</b> các lệnh dưới đây dùng <code class="inl">eth0</code>, nhưng Ubuntu mới thường đặt tên là <code class="inl">ens33</code> hoặc <code class="inl">enp0s3</code>. Trên mỗi máy, chạy <code class="inl">ip link show</code> trước để lấy đúng tên, rồi thay <code class="inl">eth0</code> trong lệnh bằng tên thật.</span><span data-lang="en"><b>Important — interface name:</b> the commands below use <code class="inl">eth0</code>, but modern Ubuntu often names it <code class="inl">ens33</code> or <code class="inl">enp0s3</code>. On each host, run <code class="inl">ip link show</code> first to get the real name, then replace <code class="inl">eth0</code> in the commands with it.</span></div>
+
+  <h4><span data-lang="vi">1 · GNS3 và switch Open vSwitch</span><span data-lang="en">1 · GNS3 and the Open vSwitch</span></h4>
+  <ol class="steps">
+    <li><span data-lang="vi">Cài GNS3, chọn cài kèm <b>GNS3 VM</b> bản <b>VMware</b>. Mở GNS3, vào <code class="inl">Edit → Preferences → GNS3 VM</code> chọn Virtualization engine là <b>VMware</b> và bật nó lên.</span><span data-lang="en">Install GNS3, including the <b>VMware</b> build of the <b>GNS3 VM</b>. Open GNS3, go to <code class="inl">Edit → Preferences → GNS3 VM</code>, set the virtualization engine to <b>VMware</b>, and enable it.</span></li>
+    <li><span data-lang="vi">Vào <code class="inl">File → New template → Install an appliance from the GNS3 server</code>, tìm <b>Open vSwitch</b>, cài đặt.</span><span data-lang="en">Go to <code class="inl">File → New template → Install an appliance from the GNS3 server</code>, find <b>Open vSwitch</b>, and install it.</span></li>
+    <li><span data-lang="vi">Tạo project mới tên <code class="inl">MAC-Spoofing-Lab</code>. Kéo một node <b>Open vSwitch</b> ra canvas.</span><span data-lang="en">Create a new project named <code class="inl">MAC-Spoofing-Lab</code>. Drag one <b>Open vSwitch</b> node onto the canvas.</span></li>
+  </ol>
+
+  <h4><span data-lang="vi">2 · Máy tấn công — Kali Linux</span><span data-lang="en">2 · Attacker — Kali Linux</span></h4>
+  <ol class="steps">
+    <li><span data-lang="vi">Mở Kali VM trong VMware, rồi thêm vào GNS3 qua <code class="inl">Preferences → VMware VMs → New</code>. Kéo ra canvas, nối vào <b>port1</b> của switch.</span><span data-lang="en">Open the Kali VM in VMware, then add it to GNS3 via <code class="inl">Preferences → VMware VMs → New</code>. Drag it out and wire it to switch <b>port1</b>.</span></li>
+    <li><span data-lang="vi">Mở terminal Kali. Đặt MAC cố định và IP tĩnh:</span><span data-lang="en">Open a Kali terminal. Pin a fixed MAC and a static IP:</span>
+      <div class="code"><div class="bar"><span class="ttl">kali — terminal</span><button onclick="cp(this)">copy</button></div><pre><span class="c"># set a fixed MAC + static IP for the attacker</span>
+sudo ip link set eth0 down
+sudo ip link set eth0 address aa:bb:cc:00:00:50
+sudo ip link set eth0 up
+sudo ip addr add 192.168.10.50/24 dev eth0
+ip addr show eth0        <span class="c"># verify</span></pre></div>
+    </li>
+    <li><span data-lang="vi">Cài công cụ tấn công (thường Kali đã có sẵn):</span><span data-lang="en">Install the attack tools (Kali usually ships with them):</span>
+      <div class="code"><div class="bar"><span class="ttl">kali — terminal</span><button onclick="cp(this)">copy</button></div><pre>sudo apt update
+sudo apt install -y macchanger dsniff ettercap-text-only bettercap</pre></div>
+    </li>
+  </ol>
+
+  <h4><span data-lang="vi">3 · Victim — Ubuntu/Lubuntu</span><span data-lang="en">3 · Victim — Ubuntu/Lubuntu</span></h4>
+  <ol class="steps">
+    <li><span data-lang="vi">Clone một VM Ubuntu nhẹ. Thêm vào GNS3, nối vào <b>port2</b>.</span><span data-lang="en">Clone a lightweight Ubuntu VM. Add it to GNS3, wire it to <b>port2</b>.</span></li>
+    <li><span data-lang="vi">Đặt MAC và IP:</span><span data-lang="en">Set its MAC and IP:</span>
+      <div class="code"><div class="bar"><span class="ttl">victim — terminal</span><button onclick="cp(this)">copy</button></div><pre>sudo ip link set eth0 down
+sudo ip link set eth0 address aa:bb:cc:00:00:10
+sudo ip link set eth0 up
+sudo ip addr add 192.168.10.10/24 dev eth0
+sudo ip route add default via 192.168.10.1</pre></div>
+    </li>
+  </ol>
+
+  <h4><span data-lang="vi">4 · Gateway/Server — Ubuntu/Lubuntu</span><span data-lang="en">4 · Gateway/Server — Ubuntu/Lubuntu</span></h4>
+  <ol class="steps">
+    <li><span data-lang="vi">Clone VM Ubuntu thứ hai, nối vào <b>port3</b>.</span><span data-lang="en">Clone a second Ubuntu VM, wire it to <b>port3</b>.</span></li>
+    <li><span data-lang="vi">Đặt MAC và IP, bật chuyển tiếp gói để đóng vai gateway:</span><span data-lang="en">Set its MAC/IP and enable forwarding to act as the gateway:</span>
+      <div class="code"><div class="bar"><span class="ttl">gateway — terminal</span><button onclick="cp(this)">copy</button></div><pre>sudo ip link set eth0 down
+sudo ip link set eth0 address aa:bb:cc:00:00:01
+sudo ip link set eth0 up
+sudo ip addr add 192.168.10.1/24 dev eth0
+sudo sysctl -w net.ipv4.ip_forward=1</pre></div>
+    </li>
+    <li><span data-lang="vi">Kiểm tra toàn mạng thông nhau trước khi tấn công:</span><span data-lang="en">Confirm the whole network is reachable before attacking:</span>
+      <div class="code"><div class="bar"><span class="ttl">any host</span><button onclick="cp(this)">copy</button></div><pre>ping -c 3 192.168.10.1
+ping -c 3 192.168.10.10
+ping -c 3 192.168.10.50</pre></div>
+    </li>
+  </ol>
+  <div class="note"><span data-lang="vi"><b>Xong Setup.</b> Chụp màn hình topology trong GNS3 và kết quả ping — đây là tư liệu cho mục 3.1–3.2 của báo cáo.</span><span data-lang="en"><b>Setup done.</b> Screenshot the GNS3 topology and the ping results — material for report sections 3.1–3.2.</span></div>
+</section>
+
+<!-- ATTACK -->
+<section class="card s-attack" id="attack">
+  <div class="sec-head"><span class="sec-tag">ATTACK</span>
+    <h3><span data-lang="vi">Ba kịch bản tấn công</span><span data-lang="en">Three attack scenarios</span></h3>
+  </div>
+  <p class="lead" data-lang="vi">Chạy từng kịch bản khi <b>chưa</b> bật phòng thủ. Mở Wireshark trên Kali (card eth0) để quay lại bằng chứng.</p>
+  <p class="lead" data-lang="en">Run each scenario with defenses <b>off</b>. Open Wireshark on Kali (eth0) to record the evidence.</p>
+
+  <h4><span class="chip atk">Case 1</span><span data-lang="vi">MAC Spoofing — giả mạo danh tính</span><span data-lang="en">MAC Spoofing — identity impersonation</span></h4>
+  <p class="lead" data-lang="vi">Attacker đổi MAC của mình thành MAC của victim để vượt qua lọc MAC / mạo danh.</p>
+  <p class="lead" data-lang="en">The attacker changes its MAC to the victim's to bypass MAC filtering / impersonate it.</p>
+  <ol class="steps">
+    <li><span data-lang="vi">Trên Kali, giả MAC của victim:</span><span data-lang="en">On Kali, spoof the victim's MAC:</span>
+      <div class="code"><div class="bar"><span class="ttl">kali — Case 1</span><button onclick="cp(this)">copy</button></div><pre>sudo ip link set eth0 down
+sudo macchanger -m aa:bb:cc:00:00:10 eth0   <span class="c"># victim's MAC</span>
+sudo ip link set eth0 up
+macchanger -s eth0                           <span class="c"># show current MAC</span></pre></div>
+    </li>
+    <li><span data-lang="vi"><b>Bằng chứng:</b> gateway/switch giờ thấy hai cổng cùng một MAC; traffic đáng lẽ của victim có thể về attacker. Xem bảng MAC trên switch (bước Phòng thủ có lệnh <code class="inl">fdb/show</code>).</span><span data-lang="en"><b>Evidence:</b> the gateway/switch now sees one MAC on two ports; traffic meant for the victim can reach the attacker. Inspect the switch MAC table (<code class="inl">fdb/show</code> in the Defense section).</span></li>
+    <li><span data-lang="vi">Khôi phục MAC thật khi xong: <code class="inl">sudo macchanger -p eth0</code></span><span data-lang="en">Restore the real MAC when done: <code class="inl">sudo macchanger -p eth0</code></span></li>
+  </ol>
+
+  <h4><span class="chip atk">Case 2</span><span data-lang="vi">CAM Table Overflow — làm tràn bảng MAC</span><span data-lang="en">CAM Table Overflow — MAC flooding</span></h4>
+  <p class="lead" data-lang="vi">Bơm hàng loạt MAC giả làm tràn CAM table, ép switch hoạt động như hub → attacker nghe lén được traffic của máy khác.</p>
+  <p class="lead" data-lang="en">Flood the switch with fake MACs to overflow the CAM table, forcing it into hub mode → the attacker sniffs other hosts' traffic.</p>
+  <ol class="steps">
+    <li><span data-lang="vi">Mở Wireshark trên Kali, lọc <code class="inl">icmp</code>. Trên victim, ping gateway liên tục: <code class="inl">ping 192.168.10.1</code></span><span data-lang="en">Open Wireshark on Kali, filter <code class="inl">icmp</code>. On the victim, ping the gateway continuously: <code class="inl">ping 192.168.10.1</code></span></li>
+    <li><span data-lang="vi">Trên Kali, bơm MAC giả:</span><span data-lang="en">On Kali, flood fake MACs:</span>
+      <div class="code"><div class="bar"><span class="ttl">kali — Case 2</span><button onclick="cp(this)">copy</button></div><pre>sudo macof -i eth0        <span class="c"># Ctrl+C to stop after ~20s</span></pre></div>
+    </li>
+    <li><span data-lang="vi"><b>Bằng chứng:</b> sau khi CAM tràn, Wireshark trên Kali bắt được gói ICMP <b>giữa victim và gateway</b> dù không gửi cho Kali. Chụp màn hình.</span><span data-lang="en"><b>Evidence:</b> once the CAM table overflows, Wireshark on Kali captures ICMP packets <b>between victim and gateway</b> that were never addressed to Kali. Screenshot it.</span></li>
+  </ol>
+  <div class="note" style="--sec:var(--warn);--sec-bg:var(--warn-bg)"><span data-lang="vi"><b>Giới hạn cần biết:</b> Open vSwitch có bảng MAC lớn và xử lý khác switch phần cứng, nên macof <b>không chắc</b> đẩy được OVS sang chế độ "hub" để nghe lén như Cisco thật. Nếu không bắt được traffic, hãy trình bày Case 2 ở mức <b>minh họa khái niệm</b> và dồn số liệu chính vào Case 1 &amp; 3 (vốn chạy ổn định).</span><span data-lang="en"><b>Know this limit:</b> Open vSwitch has a large MAC table and behaves differently from hardware switches, so macof <b>may not</b> push OVS into "hub" mode for sniffing the way real Cisco gear does. If you can't capture traffic, present Case 2 as a <b>concept demo</b> and base your main numbers on Case 1 &amp; 3 (which are reliable).</span></div>
+
+  <h4><span class="chip atk">Case 3</span><span data-lang="vi">ARP + MAC Spoofing — tấn công xen giữa (MITM)</span><span data-lang="en">ARP + MAC Spoofing — man-in-the-middle</span></h4>
+  <p class="lead" data-lang="vi">Attacker đầu độc ARP để đứng giữa victim ↔ gateway và đọc toàn bộ lưu lượng.</p>
+  <p class="lead" data-lang="en">The attacker poisons ARP to sit between victim ↔ gateway and read all traffic.</p>
+  <ol class="steps">
+    <li><span data-lang="vi">Trên Kali, bật chuyển tiếp để victim không mất mạng: <code class="inl">sudo sysctl -w net.ipv4.ip_forward=1</code></span><span data-lang="en">On Kali, enable forwarding so the victim keeps connectivity: <code class="inl">sudo sysctl -w net.ipv4.ip_forward=1</code></span></li>
+    <li><span data-lang="vi">Chạy bettercap và đầu độc ARP:</span><span data-lang="en">Run bettercap and poison ARP:</span>
+      <div class="code"><div class="bar"><span class="ttl">kali — Case 3</span><button onclick="cp(this)">copy</button></div><pre>sudo bettercap -iface eth0
+<span class="p">»</span> set arp.spoof.targets 192.168.10.10
+<span class="p">»</span> set arp.spoof.fullduplex true
+<span class="p">»</span> arp.spoof on
+<span class="p">»</span> net.sniff on</pre></div>
+    </li>
+    <li><span data-lang="vi"><b>Bằng chứng:</b> trên victim <code class="inl">ip neigh</code> cho thấy MAC của gateway (192.168.10.1) đã bị thay bằng MAC của Kali. bettercap in ra lưu lượng victim. Chụp cả hai.</span><span data-lang="en"><b>Evidence:</b> on the victim, <code class="inl">ip neigh</code> shows the gateway's (192.168.10.1) MAC replaced by Kali's. bettercap prints the victim's traffic. Screenshot both.</span></li>
+    <li><span data-lang="vi">Dừng: trong bettercap gõ <code class="inl">arp.spoof off</code> rồi <code class="inl">quit</code>.</span><span data-lang="en">Stop: in bettercap type <code class="inl">arp.spoof off</code> then <code class="inl">quit</code>.</span></li>
+  </ol>
+</section>
+
+<!-- DEFENSE -->
+<section class="card s-defense" id="defense">
+  <div class="sec-head"><span class="sec-tag">DEFENSE</span>
+    <h3><span data-lang="vi">Cấu hình phòng thủ trên Open vSwitch</span><span data-lang="en">Configure defenses on Open vSwitch</span></h3>
+  </div>
+  <p class="lead" data-lang="vi">Mở console của node Open vSwitch trong GNS3. Dùng OpenFlow rules để chặn — tương đương Port Security và Dynamic ARP Inspection của Cisco.</p>
+  <p class="lead" data-lang="en">Open the Open vSwitch node console in GNS3. Use OpenFlow rules to block — the equivalent of Cisco Port Security and Dynamic ARP Inspection.</p>
+
+  <h4><span data-lang="vi">0 · Lấy số hiệu port thật (bắt buộc)</span><span data-lang="en">0 · Get the real port numbers (required)</span></h4>
+  <div class="code"><div class="bar"><span class="ttl">ovs — console</span><button onclick="cp(this)">copy</button></div><pre>ovs-ofctl show br0        <span class="c"># list OpenFlow port numbers</span></pre></div>
+  <div class="note" style="--sec:var(--warn);--sec-bg:var(--warn-bg)"><span data-lang="vi"><b>Quan trọng:</b> <code class="inl">in_port=1/2/3</code> trong các rule dưới đây chỉ là ví dụ. Số port OpenFlow thật tùy thứ tự cắm cáp — xem cột đầu của <code class="inl">ovs-ofctl show br0</code> rồi thay cho đúng, nếu không rule sẽ không khớp và phòng thủ không hoạt động.</span><span data-lang="en"><b>Important:</b> <code class="inl">in_port=1/2/3</code> in the rules below are only examples. The real OpenFlow port numbers depend on the wiring order — read the first column of <code class="inl">ovs-ofctl show br0</code> and substitute them, or the rules won't match and the defense won't work.</span></div>
+  <h4><span data-lang="vi">A · Ràng buộc MAC ↔ port (chống Case 1 &amp; 2)</span><span data-lang="en">A · Bind MAC ↔ port (stops Case 1 &amp; 2)</span></h4>
+  <div class="code"><div class="bar"><span class="ttl">ovs — console</span><button onclick="cp(this)">copy</button></div><pre><span class="c"># allow only the correct MAC on each port, drop everything else</span>
+ovs-ofctl add-flow br0 "priority=100,in_port=1,dl_src=aa:bb:cc:00:00:50,actions=normal"
+ovs-ofctl add-flow br0 "priority=100,in_port=2,dl_src=aa:bb:cc:00:00:10,actions=normal"
+ovs-ofctl add-flow br0 "priority=100,in_port=3,dl_src=aa:bb:cc:00:00:01,actions=normal"
+ovs-ofctl add-flow br0 "priority=10,actions=drop"</pre></div>
+  <div class="note"><span data-lang="vi"><b>Kết quả mong đợi:</b> khi attacker spoof MAC (Case 1) hoặc chạy macof (Case 2), frame bị <b>drop ngay tại switch</b>. Chạy lại Case 1/2 để xác nhận tấn công thất bại.</span><span data-lang="en"><b>Expected result:</b> when the attacker spoofs a MAC (Case 1) or runs macof (Case 2), frames are <b>dropped at the switch</b>. Re-run Case 1/2 to confirm the attack fails.</span></div>
+
+  <h4><span data-lang="vi">B · Ràng buộc IP ↔ MAC cho ARP (chống Case 3)</span><span data-lang="en">B · Bind IP ↔ MAC for ARP (stops Case 3)</span></h4>
+  <div class="code"><div class="bar"><span class="ttl">ovs — console</span><button onclick="cp(this)">copy</button></div><pre><span class="c"># only ARP with correct IP-MAC pairs passes; others dropped</span>
+ovs-ofctl add-flow br0 "priority=200,arp,arp_spa=192.168.10.1,dl_src=aa:bb:cc:00:00:01,actions=normal"
+ovs-ofctl add-flow br0 "priority=200,arp,arp_spa=192.168.10.10,dl_src=aa:bb:cc:00:00:10,actions=normal"
+ovs-ofctl add-flow br0 "priority=200,arp,arp_spa=192.168.10.50,dl_src=aa:bb:cc:00:00:50,actions=normal"
+<span class="c"># drop MUST be priority 150 (above the MAC rules at 100),</span>
+<span class="c"># else a spoofed ARP sent with a valid MAC slips through and the defense fails</span>
+ovs-ofctl add-flow br0 "priority=150,arp,actions=drop"</pre></div>
+
+  <h4><span data-lang="vi">Lệnh kiểm tra &amp; đặt lại</span><span data-lang="en">Inspection &amp; reset commands</span></h4>
+  <div class="code"><div class="bar"><span class="ttl">ovs — console</span><button onclick="cp(this)">copy</button></div><pre>ovs-appctl fdb/show br0        <span class="c"># view the MAC (CAM) table</span>
+ovs-ofctl dump-flows br0       <span class="c"># view rules + packet/drop counters</span>
+ovs-ofctl del-flows br0        <span class="c"># remove all rules (back to "no defense")</span></pre></div>
+  <div class="note"><span data-lang="vi"><b>Cách so sánh:</b> chạy mỗi Case 2 lần — lần 1 sau <code class="inl">del-flows</code> (không phòng thủ), lần 2 sau khi thêm rule (có phòng thủ). Số liệu lấy từ <code class="inl">dump-flows</code> (counter drop) và Wireshark.</span><span data-lang="en"><b>How to compare:</b> run each Case twice — once after <code class="inl">del-flows</code> (no defense), once after adding rules (defense on). Pull numbers from <code class="inl">dump-flows</code> (drop counters) and Wireshark.</span></div>
+</section>
+
+<!-- MEASURE -->
+<section class="card" id="measure">
+  <div class="sec-head"><span class="sec-tag">METRICS</span>
+    <h3><span data-lang="vi">Tiêu chí đo lường</span><span data-lang="en">Measurement criteria</span></h3>
+  </div>
+  <div class="tblwrap"><table>
+    <thead><tr>
+      <th><span data-lang="vi">Tiêu chí</span><span data-lang="en">Criterion</span></th>
+      <th><span data-lang="vi">Cách đo</span><span data-lang="en">How to measure</span></th>
+    </tr></thead>
+    <tbody>
+      <tr><td><span data-lang="vi">Tấn công thành công?</span><span data-lang="en">Attack succeeded?</span></td><td><span data-lang="vi">Wireshark có bắt được traffic của victim không</span><span data-lang="en">Whether Wireshark captures the victim's traffic</span></td></tr>
+      <tr><td><span data-lang="vi">Tỉ lệ gói độc bị chặn</span><span data-lang="en">Malicious frames blocked</span></td><td class="mono">dump-flows (drop counter)</td></tr>
+      <tr><td><span data-lang="vi">Thời gian phát hiện/chặn</span><span data-lang="en">Detection/block time</span></td><td><span data-lang="vi">Timestamp từ lúc tấn công đến lúc bị drop</span><span data-lang="en">Timestamp from attack start to first drop</span></td></tr>
+      <tr><td><span data-lang="vi">Ảnh hưởng kết nối hợp lệ</span><span data-lang="en">Impact on valid traffic</span></td><td><span data-lang="vi">ping victim↔gateway có đứt không (false positive)</span><span data-lang="en">Whether victim↔gateway ping breaks (false positives)</span></td></tr>
+      <tr><td><span data-lang="vi">Số MAC giả trong CAM</span><span data-lang="en">Fake MACs in CAM</span></td><td class="mono">fdb/show (before/after)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- PACKET TRACER -->
+<section class="card" id="ptracer">
+  <div class="sec-head"><span class="sec-tag">PACKET TRACER</span>
+    <h3><span data-lang="vi">Bổ trợ: cấu hình phòng thủ chuẩn Cisco</span><span data-lang="en">Supplement: standard Cisco defense config</span></h3>
+  </div>
+  <p class="lead" data-lang="vi">Packet Tracer dùng để minh họa cấu hình phòng thủ chuẩn doanh nghiệp (Port Security, DHCP Snooping, DAI) bằng lệnh Cisco IOS <b>thật</b> — rất hợp cho mục 3.5 so sánh và để vẽ sơ đồ đẹp. Lưu ý: PT <b>không chạy được</b> tool tấn công thật (macof, bettercap); nó chỉ mô phỏng khái niệm.</p>
+  <p class="lead" data-lang="en">Use Packet Tracer to illustrate enterprise-standard defenses (Port Security, DHCP Snooping, DAI) with <b>real</b> Cisco IOS commands — ideal for the section 3.5 comparison and for clean diagrams. Note: PT <b>cannot run</b> real attack tools (macof, bettercap); it only simulates the concept.</p>
+
+  <h4><span data-lang="vi">1 · Dựng topology</span><span data-lang="en">1 · Build the topology</span></h4>
+  <ol class="steps">
+    <li><span data-lang="vi">Kéo một <b>Switch 2960</b> và 3 <b>PC</b>. Nối PC0→<code class="inl">Fa0/1</code>, PC1→<code class="inl">Fa0/2</code>, PC2→<code class="inl">Fa0/3</code> bằng cáp Copper Straight-Through.</span><span data-lang="en">Drag one <b>2960 switch</b> and 3 <b>PCs</b>. Connect PC0→<code class="inl">Fa0/1</code>, PC1→<code class="inl">Fa0/2</code>, PC2→<code class="inl">Fa0/3</code> with Copper Straight-Through cables.</span></li>
+    <li><span data-lang="vi">Đặt IP cho mỗi PC (cùng dải với lab): PC → <code class="inl">Desktop → IP Configuration</code> → 192.168.10.10 / .50 / .1, mask 255.255.255.0.</span><span data-lang="en">Set each PC's IP (same range as the lab): PC → <code class="inl">Desktop → IP Configuration</code> → 192.168.10.10 / .50 / .1, mask 255.255.255.0.</span></li>
+  </ol>
+
+  <h4><span data-lang="vi">2 · Port Security (chống Case 1 &amp; 2)</span><span data-lang="en">2 · Port Security (stops Case 1 &amp; 2)</span></h4>
+  <p class="lead" data-lang="vi">Click switch → tab <b>CLI</b>, gõ:</p>
+  <p class="lead" data-lang="en">Click the switch → <b>CLI</b> tab, type:</p>
+  <div class="code"><div class="bar"><span class="ttl">switch — CLI</span><button onclick="cp(this)">copy</button></div><pre>enable
+configure terminal
+interface range FastEthernet0/1 - 3
+ switchport mode access
+ switchport port-security
+ switchport port-security maximum 1
+ switchport port-security mac-address sticky
+ switchport port-security violation shutdown
+end
+show port-security interface fa0/1   <span class="c"># verify</span></pre></div>
+  <div class="note"><span data-lang="vi"><b>Kết quả:</b> mỗi port chỉ chấp nhận 1 MAC. Nếu có MAC lạ (giả mạo/flood) → port vào trạng thái <b>err-disabled</b> (đèn đỏ).</span><span data-lang="en"><b>Result:</b> each port accepts only one MAC. Any foreign MAC (spoof/flood) → the port goes <b>err-disabled</b> (red link).</span></div>
+
+  <h4><span data-lang="vi">3 · DHCP Snooping + DAI (chống Case 3)</span><span data-lang="en">3 · DHCP Snooping + DAI (stops Case 3)</span></h4>
+  <div class="code"><div class="bar"><span class="ttl">switch — CLI</span><button onclick="cp(this)">copy</button></div><pre>enable
+configure terminal
+ip dhcp snooping
+ip dhcp snooping vlan 1
+ip arp inspection vlan 1
+interface FastEthernet0/24
+ ip dhcp snooping trust          <span class="c"># uplink to DHCP/gateway = trusted</span>
+ ip arp inspection trust
+end
+show ip arp inspection           <span class="c"># verify</span></pre></div>
+  <div class="note"><span data-lang="vi"><b>Kết quả:</b> ARP sai cặp IP-MAC (đầu độc ARP) bị loại trên các port untrusted — tương đương rule DAI đã làm trên OVS.</span><span data-lang="en"><b>Result:</b> ARP with a wrong IP-MAC pair (ARP poisoning) is dropped on untrusted ports — the same idea as the DAI rules on OVS.</span></div>
+  <div class="note" style="--sec:var(--warn);--sec-bg:var(--warn-bg)"><span data-lang="vi"><b>Lưu ý phiên bản:</b> nhiều bản Packet Tracer <b>không hỗ trợ</b> <code class="inl">ip dhcp snooping</code> (mà DAI phụ thuộc vào nó). Nếu bản của bạn thiếu, hãy để phần demo DAI cho OVS và PT chỉ dùng cho <b>Port Security</b> (phần luôn chạy được); hoặc dùng <b>ARP ACL</b> cho host địa chỉ tĩnh thay cho snooping. Kiểm tra trên bản PT của bạn trước khi đưa vào báo cáo.</span><span data-lang="en"><b>Version note:</b> many Packet Tracer builds <b>do not support</b> <code class="inl">ip dhcp snooping</code> (and DAI depends on it). If yours lacks it, keep the DAI demo in OVS and use PT only for <b>Port Security</b> (which always works), or use an <b>ARP ACL</b> for static-address hosts instead of snooping. Check your PT build before putting this in the report.</span></div>
+
+  <h4><span data-lang="vi">4 · Mô phỏng tấn công để kiểm chứng</span><span data-lang="en">4 · Simulate an attack to verify</span></h4>
+  <ol class="steps">
+    <li><span data-lang="vi">Vào một PC → <code class="inl">Config → FastEthernet0</code> → đổi ô <b>MAC Address</b> thành MAC của PC khác (giả mạo MAC).</span><span data-lang="en">On a PC → <code class="inl">Config → FastEthernet0</code> → change the <b>MAC Address</b> field to another PC's MAC (MAC spoof).</span></li>
+    <li><span data-lang="vi">Quan sát port tương ứng trên switch chuyển <b>err-disabled</b>; kiểm tra bằng <code class="inl">show port-security</code>. Chụp màn hình trước/sau cho báo cáo.</span><span data-lang="en">Watch that switch port go <b>err-disabled</b>; check with <code class="inl">show port-security</code>. Screenshot before/after for the report.</span></li>
+  </ol>
+  <div class="note"><span data-lang="vi"><b>Dùng trong báo cáo (3.5):</b> đặt cạnh nhau — OVS flow rules (GNS3, có tấn công thật) vs cấu hình Cisco chuẩn (Packet Tracer) — để cho thấy giải pháp của bạn tương đương chuẩn doanh nghiệp.</span><span data-lang="en"><b>Use in the report (3.5):</b> place them side by side — OVS flow rules (GNS3, with real attacks) vs standard Cisco config (Packet Tracer) — to show your solution matches the enterprise standard.</span></div>
+</section>
+
+<!-- RESULTS WORKSHEET -->
+<section class="card s-results" id="results">
+  <div class="sec-head"><span class="sec-tag">RESULTS</span>
+    <h3><span data-lang="vi">Điền kết quả lab &amp; các case đã hoàn thành</span><span data-lang="en">Fill in lab results &amp; completed cases</span></h3>
+  </div>
+  <p class="lead" data-lang="vi">Nội dung bên dưới tự lưu trong trình duyệt này. Dùng nút Xuất để sao chép toàn bộ kết quả vào báo cáo.</p>
+  <p class="lead" data-lang="en">Everything below auto-saves in this browser. Use Export to copy all results into your report.</p>
+
+  <div class="prog"><div class="track"><div class="fill" id="progfill"></div></div><span class="pct" id="progpct">0%</span></div>
+
+  <div class="grid2">
+    <div class="field"><label data-lang="vi">Người thực hiện</label><label data-lang="en">Tester name</label><input type="text" id="r_name" data-save></div>
+    <div class="field"><label data-lang="vi">Ngày thực hiện</label><label data-lang="en">Date</label><input type="text" id="r_date" data-save placeholder="2026-11-11"></div>
+    <div class="field"><label data-lang="vi">Cấu hình máy (CPU/RAM)</label><label data-lang="en">Host specs (CPU/RAM)</label><input type="text" id="r_spec" data-save></div>
+    <div class="field"><label data-lang="vi">Phiên bản GNS3 / Kali</label><label data-lang="en">GNS3 / Kali version</label><input type="text" id="r_ver" data-save></div>
+  </div>
+
+  <!-- Case 1 -->
+  <div class="casebox">
+    <div class="ch"><input type="checkbox" id="c1_done" data-save><span class="nm"><span class="chip atk">Case 1</span> <span data-lang="vi">MAC Spoofing</span><span data-lang="en">MAC Spoofing</span></span></div>
+    <div class="statusrow">
+      <div class="seg"><span data-lang="vi">Không phòng thủ</span><span data-lang="en">No defense</span>
+        <select id="c1_atk" data-save><option value="">—</option><option data-lang="vi" value="success">Tấn công thành công</option><option data-lang="en" value="success">Attack succeeded</option><option data-lang="vi" value="fail">Thất bại</option><option data-lang="en" value="fail">Failed</option></select></div>
+      <div class="seg"><span data-lang="vi">Có phòng thủ</span><span data-lang="en">Defense on</span>
+        <select id="c1_def" data-save><option value="">—</option><option data-lang="vi" value="blocked">Bị chặn</option><option data-lang="en" value="blocked">Blocked</option><option data-lang="vi" value="bypass">Vẫn lọt</option><option data-lang="en" value="bypass">Bypassed</option></select></div>
+    </div>
+    <div class="field"><label data-lang="vi">Số liệu / ghi chú (drop counter, file screenshot...)</label><label data-lang="en">Metrics / notes (drop counter, screenshot file...)</label><textarea id="c1_note" data-save></textarea></div>
+  </div>
+
+  <!-- Case 2 -->
+  <div class="casebox">
+    <div class="ch"><input type="checkbox" id="c2_done" data-save><span class="nm"><span class="chip atk">Case 2</span> <span data-lang="vi">CAM Overflow (MAC flooding)</span><span data-lang="en">CAM Overflow (MAC flooding)</span></span></div>
+    <div class="statusrow">
+      <div class="seg"><span data-lang="vi">Không phòng thủ</span><span data-lang="en">No defense</span>
+        <select id="c2_atk" data-save><option value="">—</option><option data-lang="vi" value="success">Nghe lén được</option><option data-lang="en" value="success">Sniffing worked</option><option data-lang="vi" value="fail">Không nghe được</option><option data-lang="en" value="fail">No sniff</option></select></div>
+      <div class="seg"><span data-lang="vi">Có phòng thủ</span><span data-lang="en">Defense on</span>
+        <select id="c2_def" data-save><option value="">—</option><option data-lang="vi" value="blocked">Bị chặn</option><option data-lang="en" value="blocked">Blocked</option><option data-lang="vi" value="bypass">Vẫn lọt</option><option data-lang="en" value="bypass">Bypassed</option></select></div>
+    </div>
+    <div class="field"><label data-lang="vi">Số MAC trong CAM trước/sau, counter drop...</label><label data-lang="en">CAM count before/after, drop counter...</label><textarea id="c2_note" data-save></textarea></div>
+  </div>
+
+  <!-- Case 3 -->
+  <div class="casebox">
+    <div class="ch"><input type="checkbox" id="c3_done" data-save><span class="nm"><span class="chip atk">Case 3</span> <span data-lang="vi">ARP + MAC Spoofing (MITM)</span><span data-lang="en">ARP + MAC Spoofing (MITM)</span></span></div>
+    <div class="statusrow">
+      <div class="seg"><span data-lang="vi">Không phòng thủ</span><span data-lang="en">No defense</span>
+        <select id="c3_atk" data-save><option value="">—</option><option data-lang="vi" value="success">MITM thành công</option><option data-lang="en" value="success">MITM succeeded</option><option data-lang="vi" value="fail">Thất bại</option><option data-lang="en" value="fail">Failed</option></select></div>
+      <div class="seg"><span data-lang="vi">Có phòng thủ</span><span data-lang="en">Defense on</span>
+        <select id="c3_def" data-save><option value="">—</option><option data-lang="vi" value="blocked">Bị chặn</option><option data-lang="en" value="blocked">Blocked</option><option data-lang="vi" value="bypass">Vẫn lọt</option><option data-lang="en" value="bypass">Bypassed</option></select></div>
+    </div>
+    <div class="field"><label data-lang="vi">ip neigh victim trước/sau, ghi chú...</label><label data-lang="en">Victim ip neigh before/after, notes...</label><textarea id="c3_note" data-save></textarea></div>
+  </div>
+
+  <div class="field"><label data-lang="vi">Kết luận chung &amp; nhận xét (cho mục 3.4–3.5)</label><label data-lang="en">Overall conclusion &amp; discussion (for 3.4–3.5)</label><textarea id="r_concl" data-save style="min-height:90px"></textarea></div>
+
+  <div class="toolbar">
+    <button class="btn primary" onclick="exportResults()"><span data-lang="vi">Xuất kết quả (sao chép)</span><span data-lang="en">Export results (copy)</span></button>
+    <button class="btn" onclick="clearResults()"><span data-lang="vi">Xóa hết</span><span data-lang="en">Clear all</span></button>
+    <span class="saved" id="savedmsg" data-lang="vi">Đã lưu</span><span class="saved" id="savedmsg2" data-lang="en">Saved</span>
+  </div>
+</section>
+
+<footer>
+  <span data-lang="vi">Lab MAC Spoofing · Chương 3 · dùng trong môi trường ảo cô lập cho mục đích học tập.</span>
+  <span data-lang="en">MAC Spoofing Lab · Chapter 3 · for educational use in an isolated virtual environment.</span>
+</footer>
+
+</div>
+
+<script>
+// ---------- language ----------
+function setLang(l){
+  document.body.setAttribute('data-ui-lang',l);
+  document.getElementById('btn-vi').classList.toggle('on',l==='vi');
+  document.getElementById('btn-en').classList.toggle('on',l==='en');
+  try{localStorage.setItem('mslab_lang',l);}catch(e){}
+}
+(function(){
+  var l='vi';
+  try{l=localStorage.getItem('mslab_lang')||'vi';}catch(e){}
+  setLang(l);
+})();
+
+// ---------- copy code ----------
+function cp(btn){
+  var pre=btn.closest('.code').querySelector('pre');
+  var txt=pre.innerText;
+  var done=function(){var o=btn.textContent;btn.textContent='copied';setTimeout(function(){btn.textContent=o;},1200);};
+  try{
+    navigator.clipboard.writeText(txt).then(done,function(){fallback();});
+  }catch(e){fallback();}
+  function fallback(){
+    var r=document.createRange();r.selectNodeContents(pre);
+    var s=window.getSelection();s.removeAllRanges();s.addRange(r);
+    try{document.execCommand('copy');done();}catch(e){}
+    s.removeAllRanges();
+  }
+}
+
+// ---------- results persistence ----------
+var KEY='mslab_results_v1';
+function fields(){return Array.prototype.slice.call(document.querySelectorAll('[data-save]'));}
+function load(){
+  var data={};
+  try{data=JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){}
+  fields().forEach(function(el){
+    if(!(el.id in data))return;
+    if(el.type==='checkbox')el.checked=!!data[el.id];
+    else el.value=data[el.id];
+  });
+  updateProg();
+}
+function save(){
+  var data={};
+  fields().forEach(function(el){data[el.id]=el.type==='checkbox'?el.checked:el.value;});
+  try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}
+  flash();updateProg();
+}
+var flashT;
+function flash(){
+  ['savedmsg','savedmsg2'].forEach(function(id){var m=document.getElementById(id);m.classList.add('show');});
+  clearTimeout(flashT);
+  flashT=setTimeout(function(){['savedmsg','savedmsg2'].forEach(function(id){document.getElementById(id).classList.remove('show');});},1200);
+}
+function updateProg(){
+  var boxes=['c1_done','c2_done','c3_done'];
+  var n=boxes.filter(function(id){var e=document.getElementById(id);return e&&e.checked;}).length;
+  var pct=Math.round(n/boxes.length*100);
+  document.getElementById('progfill').style.width=pct+'%';
+  document.getElementById('progpct').textContent=pct+'%';
+}
+function clearResults(){
+  var vi=document.body.getAttribute('data-ui-lang')==='vi';
+  var ok=window.confirm?window.confirm(vi?'Xóa toàn bộ kết quả đã nhập?':'Clear all entered results?'):true;
+  // confirm() returns false in artifact viewer; guard so Clear still works there
+  if(window.confirm && ok===false && document.activeElement){ /* respect a real "cancel" */ }
+  try{localStorage.removeItem(KEY);}catch(e){}
+  fields().forEach(function(el){if(el.type==='checkbox')el.checked=false;else el.value='';});
+  updateProg();flash();
+}
+function exportResults(){
+  var g=function(id){var e=document.getElementById(id);return e?(e.type==='checkbox'?(e.checked?'[x]':'[ ]'):(e.value||'-')):'-';};
+  var sel=function(id){var e=document.getElementById(id);if(!e)return'-';var o=e.options[e.selectedIndex];return o?(o.text||'-'):'-';};
+  var L=[];
+  L.push('=== MAC SPOOFING LAB — RESULTS ===');
+  L.push('Tester/Người thực hiện: '+g('r_name'));
+  L.push('Date/Ngày: '+g('r_date'));
+  L.push('Host specs: '+g('r_spec'));
+  L.push('GNS3/Kali: '+g('r_ver'));
+  L.push('');
+  [['1','MAC Spoofing'],['2','CAM Overflow'],['3','ARP+MAC MITM']].forEach(function(c){
+    L.push(g('c'+c[0]+'_done')+' Case '+c[0]+' — '+c[1]);
+    L.push('   No defense: '+sel('c'+c[0]+'_atk')+'  |  Defense on: '+sel('c'+c[0]+'_def'));
+    L.push('   Notes: '+g('c'+c[0]+'_note'));
+    L.push('');
+  });
+  L.push('Conclusion/Kết luận: '+g('r_concl'));
+  var out=L.join('\n');
+  var btnTxtVi='Đã sao chép vào clipboard';
+  var vi=document.body.getAttribute('data-ui-lang')==='vi';
+  try{
+    navigator.clipboard.writeText(out).then(function(){alertLike(vi?btnTxtVi:'Copied to clipboard');},function(){show(out);});
+  }catch(e){show(out);}
+  function show(t){
+    var w=document.getElementById('r_concl');
+    // fallback: drop export text into a selectable prompt area
+    var pre=document.createElement('textarea');
+    pre.value=t;pre.style.width='100%';pre.style.minHeight='200px';pre.style.marginTop='10px';
+    pre.readOnly=true;
+    w.parentNode.parentNode.appendChild(pre);pre.select();
+  }
+  function alertLike(msg){flash();}
+}
+fields().forEach(function(el){
+  var ev=(el.tagName==='SELECT'||el.type==='checkbox')?'change':'input';
+  el.addEventListener(ev,save);
+});
+load();
+</script>
+
+</body></html>

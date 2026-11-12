@@ -1,0 +1,16 @@
+# Captures & lab artifacts
+*.pcap
+*.pcapng
+*.cap
+
+# GNS3 project exports
+*.gns3project
+*.gns3
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/
