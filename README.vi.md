@@ -10,6 +10,10 @@ với chuẩn doanh nghiệp.
 Hướng dẫn tương tác đầy đủ nằm trong [`index.html`](index.html) — mở bằng trình duyệt để xem
 từng bước, có nút sao chép lệnh, sơ đồ mạng và bảng điền kết quả (nút chuyển VI/EN ở góc trên phải).
 
+Mới dựng lab lần đầu? Xem hướng dẫn thực hành trong [`docs/huong-dan-lam-lab.md`](docs/huong-dan-lam-lab.md) —
+dựng thực tế trên Windows/VMware/GNS3: tắt Hyper-V, mẹo VMnet2 + node Cloud để nối Kali, dùng VPCS,
+và bảng tổng hợp các lỗi thường gặp.
+
 Cần viết báo cáo? Xem tài liệu đồng hành trong [`docs/huong-dan-viet-bao-cao.md`](docs/huong-dan-viet-bao-cao.md).
 
 ---
@@ -128,6 +132,7 @@ Ubuntu bằng Docker appliance của GNS3 hoặc node VPCS). Bật VT-x/AMD-V tr
 │   ├── ovs-defense.sh              # Rule OpenFlow ràng buộc MAC↔port & IP↔MAC cho ARP
 │   └── ovs-reset.sh                # Xóa hết flow + các lệnh kiểm tra hữu ích
 ├── docs/
+│   ├── huong-dan-lam-lab.md        # Hướng dẫn thực hành dựng lab + xử lý lỗi (tiếng Việt)
 │   ├── report-writing-guide.md     # Tài liệu đồng hành viết báo cáo (tiếng Anh)
 │   └── huong-dan-viet-bao-cao.md   # Tài liệu đồng hành viết báo cáo (tiếng Việt)
 ├── LICENSE

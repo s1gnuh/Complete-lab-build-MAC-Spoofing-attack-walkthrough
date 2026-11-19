@@ -11,6 +11,10 @@ The full interactive guide is in [`index.html`](index.html) — open it in a bro
 step-by-step walkthrough with copyable commands, a topology diagram, and a fillable results
 worksheet (VI/EN toggle in the top-right).
 
+New to the build? The hands-on walkthrough in [`docs/huong-dan-lam-lab.md`](docs/huong-dan-lam-lab.md)
+(Vietnamese) covers the real Windows/VMware/GNS3 setup — including Hyper-V, the VMnet2 + Cloud-node
+trick for wiring Kali, VPCS hosts, and a troubleshooting table of the errors you'll likely hit.
+
 Writing a report? See the companion guide in [`docs/report-writing-guide.md`](docs/report-writing-guide.md).
 
 ---
@@ -130,6 +134,7 @@ load (swap the Ubuntu VMs for GNS3 Docker appliances or VPCS nodes). Enable VT-x
 │   ├── ovs-defense.sh              # OpenFlow MAC↔port & ARP IP↔MAC binding rules
 │   └── ovs-reset.sh                # Remove all flows + helpful inspection commands
 ├── docs/
+│   ├── huong-dan-lam-lab.md        # Hands-on build walkthrough + troubleshooting (Vietnamese)
 │   ├── report-writing-guide.md     # Report-writing companion (English)
 │   └── huong-dan-viet-bao-cao.md   # Report-writing companion (Vietnamese)
 ├── LICENSE
