@@ -132,7 +132,10 @@ Ubuntu bằng Docker appliance của GNS3 hoặc node VPCS). Bật VT-x/AMD-V tr
 │   ├── ovs-defense.sh              # Rule OpenFlow ràng buộc MAC↔port & IP↔MAC cho ARP
 │   └── ovs-reset.sh                # Xóa hết flow + các lệnh kiểm tra hữu ích
 ├── docs/
+│   ├── lab-build-walkthrough.md    # Hướng dẫn thực hành dựng lab + xử lý lỗi (tiếng Anh)
 │   ├── huong-dan-lam-lab.md        # Hướng dẫn thực hành dựng lab + xử lý lỗi (tiếng Việt)
+│   ├── case1-mac-spoofing.md       # Bài viết Case 1 cho báo cáo (tiếng Anh)
+│   ├── case1-mac-spoofing.vi.md    # Bài viết Case 1 cho báo cáo (tiếng Việt)
 │   ├── report-writing-guide.md     # Tài liệu đồng hành viết báo cáo (tiếng Anh)
 │   └── huong-dan-viet-bao-cao.md   # Tài liệu đồng hành viết báo cáo (tiếng Việt)
 ├── LICENSE

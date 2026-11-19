@@ -1,5 +1,7 @@
 # Hướng dẫn làm lab MAC Spoofing (thực hành từng bước)
 
+[English](lab-build-walkthrough.md) · **Tiếng Việt**
+
 > Tài liệu này ghi lại **quy trình thực tế** để dựng và chạy lab trên **Windows + VMware + GNS3**,
 > kèm cách xử lý các lỗi hay gặp. Dùng kèm với [`index.html`](../index.html) (guide tương tác)
 > và [`huong-dan-viet-bao-cao.md`](huong-dan-viet-bao-cao.md) (viết báo cáo).

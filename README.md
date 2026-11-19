@@ -134,7 +134,10 @@ load (swap the Ubuntu VMs for GNS3 Docker appliances or VPCS nodes). Enable VT-x
 │   ├── ovs-defense.sh              # OpenFlow MAC↔port & ARP IP↔MAC binding rules
 │   └── ovs-reset.sh                # Remove all flows + helpful inspection commands
 ├── docs/
+│   ├── lab-build-walkthrough.md    # Hands-on build walkthrough + troubleshooting (English)
 │   ├── huong-dan-lam-lab.md        # Hands-on build walkthrough + troubleshooting (Vietnamese)
+│   ├── case1-mac-spoofing.md       # Case 1 write-up for the report (English)
+│   ├── case1-mac-spoofing.vi.md    # Case 1 write-up for the report (Vietnamese)
 │   ├── report-writing-guide.md     # Report-writing companion (English)
 │   └── huong-dan-viet-bao-cao.md   # Report-writing companion (Vietnamese)
 ├── LICENSE
